@@ -1,0 +1,20 @@
+# Java / Spring Boot
+target/
+*.class
+application-local.properties
+application-local.yml
+*.env
+.env
+
+# Credenciales / secretos
+*.pem
+*.key
+secrets/
+
+# IDE
+.idea/
+*.iml
+.vscode/
+
+# OS
+.DS_Store
