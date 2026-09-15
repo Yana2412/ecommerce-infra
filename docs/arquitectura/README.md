@@ -17,3 +17,6 @@ Debe contener:
 | VM 2 | srv-products | 192.168.100.12  | Microservicio de productos (parcial 2)  | No       |
 | VM 3 | srv-data     | 192.168.100.30  | MariaDB, MinIO, SFTP, respaldos         | No       |
 | VM 4 | srv-gateway  | 192.168.100.10  | Nginx API Gateway, Cloudflare Tunnel    | Sí       |
+
+
+Daniel agrego el diagrama de Draw.io (Exportando como .Drawio) y la tabla de IP's dentro de doc/arquitectura/
