@@ -4,10 +4,10 @@ Proyecto Integrador de Sistemas Operativos — Plataforma e-commerce distribuida
 Universidad Autónoma de Chiapas · ISC. MCC. Ernaes Antonio Trujillo Vizuet
 
 ## Integrantes
-- [Nombre 1] — srv-users / microservicio de usuarios
-- [Nombre 2] — srv-data / base de datos y MinIO
-- [Nombre 3] — srv-gateway / API Gateway y Cloudflare Tunnel
-- [Nombre 4] — srv-products / microservicio de productos
+- Angeles Dayana Rodas Hernandez — srv-users / microservicio de usuarios
+- Axel Yeray Cruz Arreola — srv-data / base de datos y MinIO
+- Diego Daniel Palafox Sánchez — srv-gateway / API Gateway y Cloudflare Tunnel
+- Julio Santiago Verdugo Hernandez — srv-products / microservicio de productos
 
 ## Arquitectura
 Ver `docs/arquitectura/`.
