@@ -1,0 +1,16 @@
+[Unit]
+Description=Microservicio de Usuarios - Ecommerce (Sistemas Operativos)
+After=network.target
+
+[Service]
+Type=simple
+User=angeles
+WorkingDirectory=/opt/microservicio-usuarios
+ExecStart=/usr/bin/java -jar /opt/microservicio-usuarios/microservicio-usuarios-0.0.1-SNAPSHOT.jar
+# Sobreescribe esta variable con un secreto real (no la dejes con este valor).
+Environment=JWT_SECRET=cambia-esta-clave-por-una-muy-larga-y-aleatoria-de-al-menos-32-caracteres
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

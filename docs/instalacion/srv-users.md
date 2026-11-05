@@ -82,3 +82,83 @@ sudo firewall-cmd --list-ports
 
 ##salida
 8081/tcp
+
+---
+
+## 5. Compilar y ejecutar el microservicio (Issue #8)
+
+El desarrollo se hace en IntelliJ IDEA en Windows; Rocky Linux solo tiene el
+JRE/JDK instalado (sin Maven), así que el flujo es: **compilar el .jar en
+Windows y transferirlo a la VM**.
+
+### 5.1 Generar el .jar en IntelliJ (Windows)
+1. Abrir el módulo `microservicio-usuarios/src` en IntelliJ.
+2. Panel Maven (lateral derecho) → `microservicio-usuarios` → `Lifecycle` →
+   doble clic en `package` (o `mvn clean package` en la terminal integrada).
+3. Verificar que el Java del proyecto sea 17 (`File > Project Structure > SDK`),
+   igual que en el `pom.xml`.
+4. El jar queda en `microservicio-usuarios/src/target/microservicio-usuarios-0.0.1-SNAPSHOT.jar`.
+
+### 5.2 Verificar Java en Rocky Linux
+```bash
+java -version
+```
+Debe ser Java 17 o superior. Si `srv-users` tiene Rocky Linux minimal, puede
+que solo tenga el JRE; para compilar cosas en la propia VM (no obligatorio
+para este flujo) haría falta `sudo dnf install java-17-openjdk-devel`.
+
+### 5.3 Copiar el jar a la VM
+Desde Windows (PowerShell, con OpenSSH client instalado, o WinSCP):
+```bash
+scp microservicio-usuarios-0.0.1-SNAPSHOT.jar angeles@192.168.100.11:/tmp/
+```
+
+### 5.4 Colocar el jar y crear el servicio en la VM
+```bash
+sudo mkdir -p /opt/microservicio-usuarios
+sudo mv /tmp/microservicio-usuarios-0.0.1-SNAPSHOT.jar /opt/microservicio-usuarios/
+sudo chown angeles:angeles /opt/microservicio-usuarios/microservicio-usuarios-0.0.1-SNAPSHOT.jar
+
+sudo cp systemd/microservicio-usuarios.service /etc/systemd/system/
+sudo systemctl daemon-reload
+sudo systemctl enable --now microservicio-usuarios
+sudo systemctl status microservicio-usuarios
+```
+El servicio corre como el usuario `angeles` (no root), como pide la regla del
+microservicio. Recuerda cambiar el `JWT_SECRET` del archivo `.service` por un
+valor real antes de usarlo en la VM.
+
+### 5.5 Ver logs
+```bash
+journalctl -u microservicio-usuarios -f
+```
+
+### 5.6 Probar los endpoints
+```bash
+curl -X POST http://192.168.100.11:8081/api/usuarios \
+  -H "Content-Type: application/json" \
+  -d '{"nombre":"Angeles","correo":"angeles@ejemplo.com","password":"password123"}'
+
+curl -X POST http://192.168.100.11:8081/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"correo":"angeles@ejemplo.com","password":"password123"}'
+```
+El login debe responder con un JSON que incluye `token`, `correo` y `rol`.
+
+### 5.7 Probar sin conexión a la BD (perfil "memoria")
+Mientras no haya red hacia `srv-data`, la app corre en modo temporal: por
+defecto `spring.profiles.active=memoria` en `application.properties`, así que
+`mvn spring-boot:run` (o correr `UsersApplication` desde IntelliJ) ya arranca
+sin necesitar PostgreSQL, guardando los usuarios en una lista en RAM
+(`UsuarioRepositorioMemoriaAdapter`). Sirve para probar `POST /api/usuarios`
+y `POST /api/auth/login` de una vez, aunque los datos se pierdan al reiniciar.
+
+Cuando ya tengan conexión real a `srv-data`, cambien una sola línea en
+`application.properties`:
+```properties
+spring.profiles.active=bd
+```
+y revisen que `application-bd.properties` tenga el usuario/contraseña
+correctos de PostgreSQL. No hay que tocar nada más del código: el
+`UsuarioService` usa la interfaz `UsuarioRepositorioPuerto`, y Spring elige
+automáticamente la implementación (memoria o JPA/PostgreSQL) según el perfil.
