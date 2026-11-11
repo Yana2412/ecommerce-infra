@@ -1,0 +1,10 @@
+[Unit]
+Description=Servicio de respaldo de bases de datos y archivos MinIO
+After=postgresql.service minio.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/backup.sh
+
+[Install]
+WantedBy=multi-user.target
